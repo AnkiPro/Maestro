@@ -149,6 +149,13 @@ class SimctlIOSDevice(
             .also { screenRecording = null }
     }
 
+    override fun installApp(path: String) {
+        LocalSimulatorUtils.install(
+            deviceId = deviceId,
+            path = path
+        )
+    }
+
     override fun addMedia(path: String) {
         LocalSimulatorUtils.addMedia(deviceId, path)
     }

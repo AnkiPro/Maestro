@@ -25,6 +25,7 @@ import dadb.AdbShellPacket
 import dadb.AdbShellResponse
 import dadb.AdbShellStream
 import dadb.Dadb
+import java.nio.file.Path
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -54,6 +55,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import javax.xml.parsers.DocumentBuilderFactory
+import kotlin.io.path.extension
 import kotlin.io.use
 
 private const val DefaultDriverHostPort = 7001
@@ -226,6 +228,12 @@ class AndroidDriver(
             // Note: If the package does not exist, this call does *not* throw an exception
             shell("am force-stop $appId")
         }
+    }
+
+    override fun installApp(appId: String, path: Path) {
+        if (path.extension != "apk") throw IllegalArgumentException("Specified file is not an apk.")
+        uninstall(appId)
+        install(path.toFile())
     }
 
     override fun killApp(appId: String) {

@@ -41,6 +41,7 @@ import maestro.orchestra.HideKeyboardCommand
 import maestro.orchestra.InputRandomCommand
 import maestro.orchestra.InputRandomType
 import maestro.orchestra.InputTextCommand
+import maestro.orchestra.InstallAppCommand
 import maestro.orchestra.KillAppCommand
 import maestro.orchestra.LaunchAppCommand
 import maestro.orchestra.MaestroCommand
@@ -74,6 +75,7 @@ import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
+import kotlin.io.path.pathString
 import kotlin.io.path.readText
 
 data class YamlFluentCommand(
@@ -122,6 +124,7 @@ data class YamlFluentCommand(
     val addMedia: YamlAddMedia? = null,
     val setAirplaneMode: YamlSetAirplaneMode? = null,
     val toggleAirplaneMode: YamlToggleAirplaneMode? = null,
+    val installApp: YamlInstallApp? = null,
     val retry: YamlRetryCommand? = null,
 ) {
 
@@ -454,6 +457,12 @@ data class YamlFluentCommand(
                 )
             )
 
+            installApp != null -> listOf(
+                MaestroCommand(
+                    installAppCommand = installAppCommand(installApp, flowPath)
+                )
+            )
+
             toggleAirplaneMode != null -> listOf(
                 MaestroCommand(
                     ToggleAirplaneModeCommand(
@@ -465,6 +474,23 @@ data class YamlFluentCommand(
 
             else -> throw SyntaxError("Invalid command: No mapping provided for $this")
         }
+    }
+
+    private fun installAppCommand(installApp: YamlInstallApp, flowPath: Path): InstallAppCommand {
+        val path = flowPath.fileSystem.getPath(installApp.path)
+        val resolvedPath =
+            if (path.isAbsolute) path.normalize()
+            else flowPath.resolveSibling(path).toAbsolutePath().normalize()
+        val commandPath = when {
+            resolvedPath.exists() -> resolvedPath.pathString
+            installApp.path.contains("\\$\\{(.*)\\}".toRegex()) -> installApp.path
+            else -> throw SyntaxError("App file at ${installApp.path} in flow file: ${flowPath.fileName} not found")
+        }
+        return InstallAppCommand(
+            appId = installApp.appId,
+            path = commandPath,
+            label = installApp.label
+        )
     }
 
     private fun addMediaCommand(addMedia: YamlAddMedia, flowPath: Path): AddMediaCommand {

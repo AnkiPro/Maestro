@@ -13,7 +13,6 @@ import okio.buffer
 import org.slf4j.LoggerFactory
 import xcuitest.XCTestDriverClient
 import java.io.InputStream
-import java.net.SocketTimeoutException
 import java.util.UUID
 
 class XCTestIOSDevice(
@@ -146,6 +145,10 @@ class XCTestIOSDevice(
         launchArguments: Map<String, Any>,
         maestroSessionId: UUID?,
     ): Result<Unit, Throwable> {
+        error("Not supported")
+    }
+
+    override fun installApp(path: String) {
         error("Not supported")
     }
 

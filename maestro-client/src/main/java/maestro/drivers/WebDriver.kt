@@ -31,6 +31,7 @@ import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.nio.file.Path
 import java.time.Duration
 import java.util.*
 
@@ -77,6 +78,10 @@ class WebDriver(
         if (isStudio) {
             seleniumDriver?.get("https://maestro.mobile.dev")
         }
+    }
+
+    override fun installApp(appId: String, path: Path) {
+        // noop
     }
 
     private fun ensureOpen(): org.openqa.selenium.WebDriver {

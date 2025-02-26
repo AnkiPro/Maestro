@@ -47,6 +47,23 @@ sealed interface CompositeCommand : Command {
     fun config(): MaestroConfig?
 }
 
+data class InstallAppCommand(
+    val appId: String,
+    val path: String,
+    override val label: String? = null,
+    override val optional: Boolean = false,
+): Command {
+    override fun description(): String {
+        return label ?: "Installing $path"
+    }
+
+    override fun evaluateScripts(jsEngine: JsEngine): Command {
+        return copy(appId = appId.evaluateScripts(jsEngine),
+            path = path.evaluateScripts(jsEngine))
+    }
+
+}
+
 data class SwipeCommand(
     val direction: SwipeDirection? = null,
     val startPoint: Point? = null,

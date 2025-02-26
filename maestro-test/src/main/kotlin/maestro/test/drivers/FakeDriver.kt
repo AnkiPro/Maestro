@@ -24,12 +24,13 @@ import com.google.common.truth.Truth.assertThat
 import maestro.*
 import maestro.utils.ScreenshotUtils
 import okio.Sink
-import okio.Source
 import okio.buffer
 import java.awt.image.BufferedImage
 import java.io.File
+import java.nio.file.Path
 import java.util.UUID
 import javax.imageio.ImageIO
+import kotlin.io.path.pathString
 
 class FakeDriver : Driver {
 
@@ -96,6 +97,10 @@ class FakeDriver : Driver {
             appId = appId,
             launchArguments = launchArguments,
         ))
+    }
+
+    override fun installApp(appId: String, path: Path) {
+        events.add(Event.InstallApp(appId, path.toAbsolutePath().pathString))
     }
 
     override fun stopApp(appId: String) {
@@ -483,6 +488,8 @@ class FakeDriver : Driver {
         object StartRecording : Event()
 
         object StopRecording : Event()
+
+        data class InstallApp(val appId: String, val path: String): Event()
     }
 
     interface UserInteraction

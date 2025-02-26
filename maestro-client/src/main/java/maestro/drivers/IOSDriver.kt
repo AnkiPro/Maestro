@@ -36,8 +36,12 @@ import org.slf4j.LoggerFactory
 import util.XCRunnerCLIUtils
 import java.io.File
 import java.net.SocketTimeoutException
+import java.nio.file.Path
 import java.util.UUID
 import kotlin.collections.set
+import kotlin.io.path.extension
+import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.pathString
 
 class IOSDriver(
     private val iosDevice: IOSDevice,
@@ -96,6 +100,16 @@ class IOSDriver(
         metrics.measured("operation", mapOf("command" to "stopApp", "appId" to appId)) {
             iosDevice.stop(appId)
         }
+    }
+
+    override fun installApp(appId: String, path: Path) = when (path.extension) {
+        "zip" -> {
+            val appPath = path.resolveSibling("${path.nameWithoutExtension}.app")
+            FileUtils.unzip(path, appPath)
+            iosDevice.installApp(appPath.pathString)
+        }
+        "app" -> iosDevice.installApp(path.pathString)
+        else -> throw IllegalArgumentException("Specified file is not an iOS app.")
     }
 
     override fun killApp(appId: String) {
