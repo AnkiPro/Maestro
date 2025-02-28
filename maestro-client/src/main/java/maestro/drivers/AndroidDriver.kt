@@ -232,7 +232,9 @@ class AndroidDriver(
 
     override fun installApp(appId: String, path: Path) {
         if (path.extension != "apk") throw IllegalArgumentException("Specified file is not an apk.")
-        uninstall(appId)
+        try {
+            uninstall(appId)
+        } catch (error: IOException) { }
         install(path.toFile())
     }
 
